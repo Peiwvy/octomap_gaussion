@@ -26,6 +26,11 @@ if(BUILD_TESTING)
   ADD_EXECUTABLE(test_pruning test_pruning.cpp)
   TARGET_LINK_LIBRARIES(test_pruning octomap octomath)
 
+  ADD_EXECUTABLE(test_gaussion_tree test_gaussion_tree.cpp)
+  TARGET_LINK_LIBRARIES(test_gaussion_tree octomap octomath ${PCL_LIBRARIES})
+
+  ADD_EXECUTABLE(pcd2ot pcd2ot.cpp)
+  TARGET_LINK_LIBRARIES(pcd2ot octomap octomath ${PCL_LIBRARIES})
 
   # CTest tests below
 
