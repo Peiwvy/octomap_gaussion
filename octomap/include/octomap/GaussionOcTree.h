@@ -69,6 +69,8 @@ class GaussionOcTreeNode : public OcTreeNode {
 
   GaussionOcTreeNode::GaussionDistribution IncreUpdate(
       const GaussionDistribution A, const GaussionDistribution B) const;
+  GaussionOcTreeNode::GaussionDistribution AdditiveUpdate(
+      const GaussionDistribution A, const GaussionDistribution B) const;
 
   void updateGaussionDistributionChildren();
 

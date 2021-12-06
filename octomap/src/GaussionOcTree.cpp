@@ -27,21 +27,27 @@ std::istream& GaussionOcTreeNode::readData(std::istream& s) {
 GaussionOcTreeNode::GaussionDistribution GaussionOcTreeNode::IncreUpdate(
     const GaussionOcTreeNode::GaussionDistribution A,
     const GaussionOcTreeNode::GaussionDistribution B) const {
-  // Method1: Increment update
   uint32_t new_n = A.n + B.n;
   Eigen::Vector3f new_centroid = (A.n * A.centroid + B.n * B.centroid) / new_n;
-
   Eigen::Vector3f mean_diff = A.centroid - B.centroid;
   Eigen::Matrix3f new_covariance_matrix =
       (A.covariance_matrix * (A.n - 1) + B.covariance_matrix * (B.n - 1) +
        (mean_diff * mean_diff.transpose()) * A.n * B.n / new_n) /
       (new_n - 1);
 
-  // Method2: Average update (Not used).
-  // uint32_t new_n = A.n + B.n;
-  // Eigen::Vector3f new_centroid = (A.n * A.centroid + B.n * B.centroid) /
-  // new_n; Eigen::Matrix3f new_covariance_matrix =
-  //     (A.n * A.covariance_matrix + B.n * B.covariance_matrix) / new_n;
+  GaussionOcTreeNode::GaussionDistribution new_(new_n, new_centroid,
+                                                new_covariance_matrix);
+
+  return new_;
+}
+
+GaussionOcTreeNode::GaussionDistribution GaussionOcTreeNode::AdditiveUpdate(
+    const GaussionOcTreeNode::GaussionDistribution A,
+    const GaussionOcTreeNode::GaussionDistribution B) const {
+  uint32_t new_n = A.n + B.n;
+  Eigen::Vector3f new_centroid = (A.n * A.centroid + B.n * B.centroid) / new_n;
+  Eigen::Matrix3f new_covariance_matrix =
+      (A.n * A.covariance_matrix + B.n * B.covariance_matrix) / new_n;
 
   GaussionOcTreeNode::GaussionDistribution new_(new_n, new_centroid,
                                                 new_covariance_matrix);
@@ -145,7 +151,7 @@ GaussionOcTreeNode* GaussionOcTree::averageNodeGaussionDistribution(
     if (node->isGaussionDistributionSet()) {
       GaussionOcTreeNode::GaussionDistribution added(n, centroid,
                                                      covariance_matrix);
-      auto new_ = node->IncreUpdate(node->getGaussionDistribution(), added);
+      auto new_ = node->AdditiveUpdate(node->getGaussionDistribution(), added);
       node->setGaussionDistribution(new_);
     } else {
       node->setGaussionDistribution(n, centroid, covariance_matrix);
